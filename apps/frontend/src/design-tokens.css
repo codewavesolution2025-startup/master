@@ -1,0 +1,75 @@
+/* ═══════════════════════════════════════════════════
+   SUPPLY CHAIN — Design System v2
+   À importer dans index.css ou App.css
+═══════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Couleurs principales */
+  --sc-bg:           #080F1C;
+  --sc-surface:      #0D1929;
+  --sc-card:         #111E2E;
+  --sc-card-hover:   #162336;
+
+  /* Bordures */
+  --sc-border:       rgba(79,195,247,0.10);
+  --sc-border-hover: rgba(79,195,247,0.22);
+  --sc-border-focus: rgba(79,195,247,0.45);
+
+  /* Palette */
+  --sc-blue:    #4FC3F7;
+  --sc-blue-dk: #0F4C81;
+  --sc-blue-md: #1976D2;
+  --sc-green:   #34D399;
+  --sc-red:     #F87171;
+  --sc-orange:  #FB923C;
+  --sc-yellow:  #FCD34D;
+  --sc-purple:  #A78BFA;
+
+  /* Texte */
+  --sc-text:    #E8F4FD;
+  --sc-muted:   #4A6880;
+  --sc-muted2:  #7A9AB5;
+
+  /* Statuts */
+  --sc-ok-bg:       rgba(52,211,153,0.08);
+  --sc-ok-color:    #34D399;
+  --sc-ok-border:   rgba(52,211,153,0.20);
+  --sc-alerte-bg:   rgba(252,211,77,0.08);
+  --sc-alerte-color:#FCD34D;
+  --sc-alerte-border:rgba(252,211,77,0.20);
+  --sc-crit-bg:     rgba(251,146,60,0.08);
+  --sc-crit-color:  #FB923C;
+  --sc-crit-border: rgba(251,146,60,0.20);
+  --sc-rupt-bg:     rgba(248,113,113,0.08);
+  --sc-rupt-color:  #F87171;
+  --sc-rupt-border: rgba(248,113,113,0.20);
+
+  /* Layout */
+  --sc-radius:   8px;
+  --sc-radius-lg:12px;
+  --sc-sidebar-w:220px;
+
+  /* Typographie */
+  --sc-font: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+body {
+  font-family: var(--sc-font);
+  background: var(--sc-bg);
+  color: var(--sc-text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--sc-blue); text-decoration: none; }
+button { font-family: var(--sc-font); cursor: pointer; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sc-muted); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sc-muted2); }

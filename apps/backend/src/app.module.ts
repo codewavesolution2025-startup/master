@@ -11,6 +11,28 @@ import { SitesModule } from './referentiels/sites/sites.module';
 import { ArticlesModule } from './referentiels/articles/articles.module';
 import { FournisseursModule } from './referentiels/fournisseurs/fournisseurs.module';
 import { ClientsModule, PostesChargeModule } from './referentiels/clients-postes.module';
+// Sprint 2 — M2 Stocks
+import { LotsModule } from './stock/lots/lots.module';
+import { MouvementsModule } from './stock/mouvements/mouvements.module';
+import { InventairesModule } from './stock/inventaires/inventaires.module';
+// Sprint 3 — M3 Achats
+import { DemandesAchatModule } from './achats/demandes/demandes-achat.module';
+import { CommandesAchatModule } from './achats/commandes/commandes-achat.module';
+import { ReceptionsModule } from './achats/receptions/receptions.module';
+// Sprint 4 — M4 Production
+import { NomenclaturesModule } from './production/nomenclatures/nomenclatures.module';
+import { GammesModule } from './production/gammes/gammes.module';
+import { OrdresFabricationModule } from './production/ordres-fabrication/of.module';
+// Sprint 5 — M5 Qualité
+import { QualiteModule } from './qualite/plans-controle/qualite.module';
+import { NonConformitesModule } from './qualite/non-conformites/non-conformites.module';
+// Sprint 6 — M6 Expéditions
+import { ExpeditionsModule } from './expeditions/expeditions.module';
+// Sprint 7 — M8 Reporting
+import { AiModule } from './ai/ai.module';
+import { ReportingModule } from './reporting/reporting.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { RhModule } from './rh/rh.module';
 
 @Module({
   imports: [
@@ -53,6 +75,28 @@ import { ClientsModule, PostesChargeModule } from './referentiels/clients-postes
     FournisseursModule,
     ClientsModule,
     PostesChargeModule,
+    // Sprint 2 — M2 Stocks
+    LotsModule,
+    MouvementsModule,
+    InventairesModule,
+    // Sprint 3 — M3 Achats
+    DemandesAchatModule,
+    CommandesAchatModule,
+    ReceptionsModule,
+    // Sprint 4 — M4 Production
+    NomenclaturesModule,
+    GammesModule,
+    OrdresFabricationModule,
+    // Sprint 5 — M5 Qualité
+    QualiteModule,
+    NonConformitesModule,
+    // Sprint 6 — M6 Expéditions
+    ExpeditionsModule,
+    // Sprint 7 — M8 Reporting
+    ReportingModule,
+    AiModule,
+    DashboardModule,
+    RhModule,
   ],
   controllers: [AppController],
   providers: [

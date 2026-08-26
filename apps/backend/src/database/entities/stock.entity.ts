@@ -8,9 +8,9 @@ import { Fournisseur } from './fournisseur.entity';
 import { StatutLot, MouvementType } from './enums';
 
 @Entity('lots')
-@Index(['article_id'])
+@Index(['articleId'])
 @Index(['statut'])
-@Index(['date_dluo'])
+@Index(['dateDluo'])
 export class Lot {
   @PrimaryGeneratedColumn('uuid')
   id: string;

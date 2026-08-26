@@ -1,50 +1,70 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './store/auth.context';
+import MainLayout from './layouts/MainLayout';
+import LoginPage from './pages/auth/Login';
+import DashboardPage from './pages/Dashboard';
+import ArticlesPage from './pages/referentiels/Articles';
+import FournisseursPage from './pages/referentiels/Fournisseurs';
+import { SitesPage, ClientsPage, PostesChargePage } from './pages/referentiels/SitesClientsPostes';
+import { StockActuelPage, AlertesStockPage } from './pages/stock/StockActuel';
+import LotsPage from './pages/stock/Lots';
+import { MouvementsPage, InventairesPage } from './pages/stock/MouvementsInventaires';
+import DemandesAchatPage from './pages/achats/DemandesAchat';
+import CommandesAchatPage from './pages/achats/CommandesAchat';
+import { ReceptionsPage, MrpPage } from './pages/achats/ReceptionsMrp';
+import OrdresFabricationPage from './pages/production/OrdresFabrication';
+import { NomenclaturesPage, GammesPage } from './pages/production/NomenclaturesGammes';
+import { PlansControlePage, ControlesReceptionPage } from './pages/qualite/PlansControles';
+import NonConformitesPage from './pages/qualite/NonConformites';
+import { CommandesClientsPage, BonsLivraisonPage } from './pages/expeditions/Expeditions';
+import { DashboardDirecteurPage, TrsPage, EcartsReportingPage } from './pages/reporting/Reporting';
+import RhPage from './pages/rh/RhPage';
 
-// Pages (à créer au fil des sprints)
-// Sprint 1 : Login, Articles, Fournisseurs, Sites
-// Sprint 2 : Stock, Lots
-// etc.
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+}
 
-function HealthPage() {
+function AppRoutes() {
   return (
-    <div style={{ fontFamily: 'monospace', padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h1 style={{ color: '#1E3A5F' }}>⚙ Supply Chain Industrielle</h1>
-      <p style={{ color: '#374151' }}>
-        Frontend opérationnel — Sprint 0 terminé.
-      </p>
-      <div style={{
-        background: '#F0FDF4', border: '1px solid #86EFAC',
-        borderRadius: '8px', padding: '1rem', marginTop: '1rem',
-      }}>
-        <strong style={{ color: '#166534' }}>✓ US-000 — Monorepo NestJS + React/Vite</strong>
-        <ul style={{ color: '#15803D', marginTop: '0.5rem' }}>
-          <li>Structure monorepo créée</li>
-          <li>TypeScript configuré (backend + frontend)</li>
-          <li>ESLint + Prettier partagés</li>
-          <li>Proxy Vite → NestJS configuré (/api)</li>
-          <li>React Query + React Router initialisés</li>
-        </ul>
-      </div>
-      <div style={{ marginTop: '1.5rem', color: '#6B7280', fontSize: '0.85rem' }}>
-        <strong>Prochaine étape :</strong> US-001 — Docker Compose (PostgreSQL + Redis + MinIO)
-      </div>
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<PrivateRoute><MainLayout /></PrivateRoute>}>
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="referentiels/articles" element={<ArticlesPage />} />
+        <Route path="referentiels/fournisseurs" element={<FournisseursPage />} />
+        <Route path="referentiels/clients" element={<ClientsPage />} />
+        <Route path="referentiels/sites" element={<SitesPage />} />
+        <Route path="referentiels/postes-charge" element={<PostesChargePage />} />
+        <Route path="stock/actuel" element={<StockActuelPage />} />
+        <Route path="stock/alertes" element={<AlertesStockPage />} />
+        <Route path="stock/lots" element={<LotsPage />} />
+        <Route path="stock/mouvements" element={<MouvementsPage />} />
+        <Route path="stock/inventaires" element={<InventairesPage />} />
+        <Route path="achats/demandes" element={<DemandesAchatPage />} />
+        <Route path="achats/commandes" element={<CommandesAchatPage />} />
+        <Route path="achats/receptions" element={<ReceptionsPage />} />
+        <Route path="achats/mrp" element={<MrpPage />} />
+        <Route path="production/ordres" element={<OrdresFabricationPage />} />
+        <Route path="production/nomenclatures" element={<NomenclaturesPage />} />
+        <Route path="production/gammes" element={<GammesPage />} />
+        <Route path="qualite/plans" element={<PlansControlePage />} />
+        <Route path="qualite/controles" element={<ControlesReceptionPage />} />
+        <Route path="qualite/nc" element={<NonConformitesPage />} />
+        <Route path="expeditions/commandes" element={<CommandesClientsPage />} />
+        <Route path="expeditions/bl" element={<BonsLivraisonPage />} />
+        <Route path="reporting/dashboard" element={<DashboardDirecteurPage />} />
+        <Route path="reporting/trs" element={<TrsPage />} />
+        <Route path="reporting/ecarts" element={<EcartsReportingPage />} />
+        <Route path="reporting/fournisseurs" element={<EcartsReportingPage />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/rh" element={<RhPage />} />
+      </Route>
+    </Routes>
   );
 }
 
 export default function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<HealthPage />} />
-      {/* Sprint 1 — Auth */}
-      {/* <Route path="/login" element={<LoginPage />} /> */}
-      {/* Sprint 1 — M1 Référentiels */}
-      {/* <Route path="/articles" element={<ArticlesPage />} /> */}
-      {/* <Route path="/fournisseurs" element={<FournisseursPage />} /> */}
-      {/* Sprint 2 — M2 Stocks */}
-      {/* <Route path="/stock" element={<StockPage />} /> */}
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
+  return <AuthProvider><AppRoutes /></AuthProvider>;
 }

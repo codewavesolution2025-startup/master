@@ -139,7 +139,9 @@ export class ArticlesService {
     page?: number;
     limit?: number;
   }) {
-    const { type, familleId, actif, search, page = 1, limit = 20 } = filters;
+    const { type, familleId, actif, search } = filters;
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
     const where: FindOptionsWhere<Article> = {};
 
     if (type) where.type = type;
