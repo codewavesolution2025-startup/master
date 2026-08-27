@@ -26,8 +26,12 @@ export const clearTokens = () => {
 export const getAccessToken = () => accessToken;
 
 // ── Instance Axios principale ─────────────────────────────────────────────────
+// En local, '/api/v1' passe par le proxy Vite (vite.config.ts) vers le backend.
+// En production (Vercel), il n'y a pas de proxy : VITE_API_URL doit pointer
+// vers l'URL absolue du backend hébergé (ex. Render), définie dans les
+// variables d'environnement du projet Vercel.
 const api: AxiosInstance = axios.create({
-  baseURL: '/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
