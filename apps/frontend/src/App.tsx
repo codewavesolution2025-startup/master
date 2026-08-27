@@ -19,6 +19,7 @@ import NonConformitesPage from './pages/qualite/NonConformites';
 import { CommandesClientsPage, BonsLivraisonPage } from './pages/expeditions/Expeditions';
 import { DashboardDirecteurPage, TrsPage, EcartsReportingPage } from './pages/reporting/Reporting';
 import RhPage from './pages/rh/RhPage';
+import DeploiementsPage from './pages/admin/DeploiementsPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -60,6 +61,7 @@ function AppRoutes() {
         <Route path="reporting/fournisseurs" element={<EcartsReportingPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
         <Route path="/rh" element={<RhPage />} />
+        <Route path="/admin/deploiements" element={<DeploiementsPage />} />
       </Route>
     </Routes>
   );

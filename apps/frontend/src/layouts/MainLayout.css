@@ -87,6 +87,15 @@
 .nav-child:hover { color: var(--sc-text); background: rgba(79,195,247,0.04); }
 .nav-child.active { color: var(--sc-blue); }
 
+/* Compte démo restreint — items grisés, non interactifs */
+.nav-item-disabled,
+.nav-child-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* User footer */
 .sidebar-user {
   padding: 12px 14px;

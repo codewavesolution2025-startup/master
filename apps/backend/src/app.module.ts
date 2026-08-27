@@ -33,6 +33,8 @@ import { AiModule } from './ai/ai.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { RhModule } from './rh/rh.module';
+import { DeploiementsModule } from './admin/deploiements.module';
+
 
 @Module({
   imports: [
@@ -97,6 +99,7 @@ import { RhModule } from './rh/rh.module';
     AiModule,
     DashboardModule,
     RhModule,
+    DeploiementsModule,
   ],
   controllers: [AppController],
   providers: [

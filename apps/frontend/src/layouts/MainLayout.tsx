@@ -1,13 +1,22 @@
 import { useState } from 'react';
-import { NavLink, Outlet, Navigate } from 'react-router-dom';
+import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth, canAccess, ROLE_LABELS } from '../store/auth.context';
 import AiAgent from '../components/ai/AiAgent';
 import './MainLayout.css';
 
+// ── Compte démo restreint ────────────────────────────────────
+// Le rôle LECTURE ne peut voir/atteindre que cette unique page —
+// « Portefeuille Clients » (les entreprises ayant déployé la
+// solution) ; tout le reste du menu est affiché mais grisé
+// (non cliquable), et toute navigation directe par URL y est
+// également bloquée.
+const DEMO_ROLE = 'LECTURE';
+const DEMO_ONLY_PATH = '/admin/deploiements';
+
 const NAV_ITEMS = [
-  { label: 'Tableau de bord', icon: '⬡', path: '/dashboard', module: 'dashboard', always: true },
+  { label: 'Tableau de bord', icon: '⊙', path: '/dashboard', module: 'dashboard', always: true },
   {
-    label: 'Référentiels', icon: '◈', path: '/referentiels', module: 'referentiels',
+    label: 'Référentiels', icon: '◆', path: '/referentiels', module: 'referentiels',
     children: [
       { label: 'Articles', path: '/referentiels/articles' },
       { label: 'Fournisseurs', path: '/referentiels/fournisseurs' },
@@ -17,7 +26,7 @@ const NAV_ITEMS = [
     ],
   },
   {
-    label: 'Stocks', icon: '◪', path: '/stock', module: 'stock',
+    label: 'Stocks', icon: '▣', path: '/stock', module: 'stock',
     children: [
       { label: 'Vue actuelle', path: '/stock/actuel' },
       { label: 'Lots', path: '/stock/lots' },
@@ -36,7 +45,7 @@ const NAV_ITEMS = [
     ],
   },
   {
-    label: 'Production', icon: '⬡', path: '/production', module: 'production',
+    label: 'Production', icon: '⊙', path: '/production', module: 'production',
     children: [
       { label: 'Ordres de fabrication', path: '/production/ordres' },
       { label: 'Nomenclatures', path: '/production/nomenclatures' },
@@ -44,10 +53,10 @@ const NAV_ITEMS = [
     ],
   },
   {
-    label: 'Qualité', icon: '◉', path: '/qualite', module: 'qualite',
+    label: 'Qualité', icon: '●', path: '/qualite', module: 'qualite',
     children: [
-      { label: 'Plans de contrôle', path: '/qualite/plans' },
-      { label: 'Contrôles réception', path: '/qualite/controles' },
+      { label: 'Plans contrôle', path: '/qualite/plans' },
+      { label: 'Contrôles', path: '/qualite/controles' },
       { label: 'Non-conformités', path: '/qualite/nc' },
     ],
   },
@@ -55,120 +64,164 @@ const NAV_ITEMS = [
     label: 'Expéditions', icon: '◁', path: '/expeditions', module: 'expeditions',
     children: [
       { label: 'Commandes clients', path: '/expeditions/commandes' },
-      { label: 'Bons de livraison', path: '/expeditions/bl' },
+      { label: 'Bons livraison', path: '/expeditions/bons-livraison' },
     ],
   },
   {
-    label: 'Reporting', icon: '◈', path: '/reporting', module: 'reporting',
+    label: 'Reporting', icon: '●', path: '/reporting', module: 'reporting',
     children: [
-      { label: 'Dashboard Directeur', path: '/reporting/dashboard' },
-      { label: 'TRS Postes', path: '/reporting/trs' },
-      { label: 'Écarts consommation', path: '/reporting/ecarts' },
-      { label: 'Fournisseurs', path: '/reporting/fournisseurs' },
+      { label: 'Dashboard directeur', path: '/reporting/dashboard' },
+      { label: 'TRS', path: '/reporting/trs' },
+      { label: 'Écarts', path: '/reporting/ecarts' },
     ],
   },
-  { label: 'RH', icon: '👥', path: '/rh', module: 'rh' },
+  { label: 'RH', icon: '👥', path: '/rh', module: 'rh', always: true },
+  { label: 'Portefeuille Clients', icon: '🏭', path: '/admin/deploiements', module: 'admin', always: true },
 ];
 
+// ── Types ─────────────────────────────────────────────────────
+interface NavChild { label: string; path: string; }
+interface NavItemDef {
+  label: string; icon?: string; path: string;
+  module?: string; always?: boolean; children?: NavChild[];
+}
+
+// ── Composant NavItem ─────────────────────────────────────────
+function NavItem({
+  item, collapsed, restricted,
+}: { item: NavItemDef; collapsed: boolean; restricted: boolean }) {
+  const [open, setOpen] = useState(false);
+
+  if (item.children) {
+    return (
+      <div>
+        <button
+          className={`nav-item ${open ? 'active' : ''}`}
+          onClick={() => setOpen(o => !o)}
+        >
+          <span className="nav-icon">{item.icon}</span>
+          {!collapsed && <span className="nav-label">{item.label}</span>}
+          {!collapsed && <span className="nav-chevron">{open ? '▾' : '▸'}</span>}
+        </button>
+        {open && !collapsed && (
+          <div className="nav-children">
+            {item.children.map((child) => {
+              const locked = restricted && child.path !== DEMO_ONLY_PATH;
+              if (locked) {
+                return (
+                  <span
+                    key={child.path}
+                    className="nav-child nav-child-disabled"
+                    aria-disabled="true"
+                    title="Non disponible avec ce compte démo"
+                  >
+                    {child.label}
+                  </span>
+                );
+              }
+              return (
+                <NavLink
+                  key={child.path}
+                  to={child.path}
+                  className={({ isActive }) => `nav-child${isActive ? ' active' : ''}`}
+                >
+                  {child.label}
+                </NavLink>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const locked = restricted && item.path !== DEMO_ONLY_PATH;
+  if (locked) {
+    return (
+      <span
+        className="nav-item nav-item-disabled"
+        aria-disabled="true"
+        title="Non disponible avec ce compte démo"
+      >
+        <span className="nav-icon">{item.icon}</span>
+        {!collapsed && <span className="nav-label">{item.label}</span>}
+      </span>
+    );
+  }
+
+  return (
+    <NavLink
+      to={item.path}
+      className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
+    >
+      <span className="nav-icon">{item.icon}</span>
+      {!collapsed && <span className="nav-label">{item.label}</span>}
+    </NavLink>
+  );
+}
+
+// ── Layout principal ──────────────────────────────────────────
 export default function MainLayout() {
   const { user, logout } = useAuth();
-  const [openMenus, setOpenMenus] = useState<string[]>([]);
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
 
   if (!user) return <Navigate to="/login" replace />;
 
-  const toggleMenu = (path: string) => {
-    setOpenMenus(prev =>
-      prev.includes(path) ? prev.filter(p => p !== path) : [...prev, path]
-    );
-  };
+  const isDemoRestricted = user.role === DEMO_ROLE;
 
-  const visibleItems = NAV_ITEMS.filter(item =>
-    item.always || canAccess(user.role, item.module)
-  );
+  // Bloque aussi la navigation directe par URL (pas seulement le menu grisé)
+  if (isDemoRestricted && location.pathname !== DEMO_ONLY_PATH) {
+    return <Navigate to={DEMO_ONLY_PATH} replace />;
+  }
+
+  const initials = `${user.prenom?.[0] || ''}${user.nom?.[0] || ''}`.toUpperCase();
 
   return (
-    <div className={`layout-root ${collapsed ? 'layout-collapsed' : ''}`}>
+    <div className={`layout-root${collapsed ? ' layout-collapsed' : ''}`}>
       <aside className="sidebar">
         <div className="sidebar-header">
-          {!collapsed && (
-            <div className="sidebar-brand">
-              <div className="sidebar-logo">
-                <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-                  <rect width="36" height="36" rx="10" fill="#0F4C81"/>
-                  <path d="M8 26 L18 10 L28 26 Z" fill="none" stroke="#4FC3F7" strokeWidth="2" strokeLinejoin="round"/>
-                  <circle cx="18" cy="18" r="3" fill="#4FC3F7"/>
-                </svg>
-              </div>
-              <span className="sidebar-name">Supply Chain</span>
+          <div className="sidebar-brand">
+            <div className="sidebar-logo">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M4 20 L12 6 L20 20 Z" stroke="#4FC3F7" strokeWidth="1.5" strokeLinejoin="round" />
+                <circle cx="12" cy="13" r="2" fill="#4FC3F7" />
+              </svg>
             </div>
-          )}
+            {!collapsed && <span className="sidebar-name">Supply Chain</span>}
+          </div>
           <button className="sidebar-toggle" onClick={() => setCollapsed(c => !c)}>
             {collapsed ? '›' : '‹'}
           </button>
         </div>
 
         <nav className="sidebar-nav">
-          {visibleItems.map(item => (
-            <div key={item.path} className="nav-group">
-              {item.children ? (
-                <>
-                  <button
-                    className={`nav-item nav-parent ${openMenus.includes(item.path) ? 'open' : ''}`}
-                    onClick={() => toggleMenu(item.path)}
-                  >
-                    <span className="nav-icon">{item.icon}</span>
-                    {!collapsed && (
-                      <>
-                        <span className="nav-label">{item.label}</span>
-                        <span className="nav-chevron">{openMenus.includes(item.path) ? '▾' : '▸'}</span>
-                      </>
-                    )}
-                  </button>
-                  {!collapsed && openMenus.includes(item.path) && (
-                    <div className="nav-children">
-                      {item.children.map(child => (
-                        <NavLink
-                          key={child.path}
-                          to={child.path}
-                          className={({ isActive }) => `nav-child ${isActive ? 'active' : ''}`}
-                        >
-                          {child.label}
-                        </NavLink>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  {!collapsed && <span className="nav-label">{item.label}</span>}
-                </NavLink>
-              )}
-            </div>
+          {NAV_ITEMS.map(item => (
+            <NavItem
+              key={item.path}
+              item={item}
+              collapsed={collapsed}
+              restricted={isDemoRestricted}
+            />
           ))}
         </nav>
 
-        {!collapsed && (
-          <div className="sidebar-user">
-            <div className="user-avatar">{user.prenom[0]}{user.nom[0]}</div>
+        <div className="sidebar-user">
+          <div className="user-avatar">{initials}</div>
+          {!collapsed && (
             <div className="user-info">
               <div className="user-name">{user.prenom} {user.nom}</div>
               <div className="user-role">{ROLE_LABELS[user.role] || user.role}</div>
             </div>
-            <button className="logout-btn" onClick={logout} title="Déconnexion">⏻</button>
-          </div>
-        )}
+          )}
+          <button className="logout-btn" onClick={logout} title="Déconnexion">⏻</button>
+        </div>
       </aside>
 
       <main className="layout-main">
         <Outlet />
       </main>
 
-      {/* Agent IA contextuel — visible sur toutes les pages */}
       <AiAgent />
     </div>
   );

@@ -34,7 +34,7 @@ export class AuthService {
     // Récupérer le hash séparément (non sélectionné par défaut)
     const userWithHash = await this.utilisateurRepo
       .createQueryBuilder('u')
-      .addSelect('u.password_hash')
+      .addSelect('u.passwordHash')
       .where('u.id = :id', { id: user.id })
       .getOne();
 
