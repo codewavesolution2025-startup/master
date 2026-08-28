@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+import api from '../../services/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -86,47 +87,29 @@ function saveMemory(messages: Message[]) {
   } catch {}
 }
 
-// ── Résolution de l'URL de l'API (même logique que services/api.ts) ─────────
-// En local, '/api/v1' passe par le proxy Vite. En production, VITE_API_URL
-// pointe vers l'URL absolue du backend (Render) — sans ça, un fetch() relatif
-// part vers l'origine du frontend lui-même et non vers le backend.
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
-const API_ORIGIN = /^https?:\/\//.test(API_BASE) ? API_BASE.replace(/\/api\/v1\/?$/, '') : '';
-
-function apiUrl(path: string): string {
-  return `${API_BASE}${path}`;
-}
-
-// Pour les URLs déjà préfixées par /api/v1 (ex. downloadUrl renvoyé par le backend)
-function resolveBackendUrl(pathWithApiPrefix: string): string {
-  return API_ORIGIN ? `${API_ORIGIN}${pathWithApiPrefix}` : pathWithApiPrefix;
-}
-
 // ── Appel API ─────────────────────────────────────────────────
+// On utilise l'instance axios partagée (services/api.ts) plutôt que fetch() :
+// elle pointe déjà vers la bonne origine (VITE_API_URL en production, au lieu
+// d'une origine relative qui toucherait le frontend au lieu du backend), et
+// elle rafraîchit automatiquement le token d'accès expiré (15 min) avant de
+// rejouer la requête — un fetch() brut avec un token en cache ne le fait pas.
 async function callAgent(
   messages: { role: string; content: string }[],
   systemPrompt: string,
   module: string,
   memory: string
 ): Promise<{ content: string; actions: any[] }> {
-  const token = (window as any).__accessToken || '';
-  const res = await fetch(apiUrl('/ai/chat'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify({ messages, system: systemPrompt, module, memory }),
-  });
-  if (!res.ok) throw new Error(`Erreur serveur : ${res.status}`);
-  return res.json();
+  try {
+    const { data } = await api.post('/ai/chat', { messages, system: systemPrompt, module, memory });
+    return data;
+  } catch (e: any) {
+    throw new Error(`Erreur serveur : ${e.response?.status || e.message}`);
+  }
 }
 
 async function fetchAlertes(): Promise<Alerte[]> {
-  const token = (window as any).__accessToken || '';
   try {
-    const res = await fetch(apiUrl('/ai/alertes'), {
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const { data } = await api.get('/ai/alertes');
     return data.alertes || [];
   } catch { return []; }
 }
@@ -368,12 +351,12 @@ export default function AiAgent() {
                             href={action.data.downloadUrl}
                             download
                             onClick={e => {
-                              // Ajouter le token dans l'URL n'est pas possible — on fetch manuellement
+                              // Ajouter le token dans l'URL n'est pas possible — on passe par
+                              // l'instance axios partagée (bonne origine + token toujours à jour).
                               e.preventDefault();
-                              const token = (window as any).__accessToken || '';
-                              fetch(resolveBackendUrl(action.data.downloadUrl), { headers: { Authorization: `Bearer ${token}` } })
-                                .then(r => r.blob())
-                                .then(blob => {
+                              const path = action.data.downloadUrl.replace(/^\/api\/v1/, '');
+                              api.get(path, { responseType: 'blob' })
+                                .then(({ data: blob }) => {
                                   const url = URL.createObjectURL(blob);
                                   const a = document.createElement('a');
                                   a.href = url;

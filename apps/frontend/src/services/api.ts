@@ -25,6 +25,15 @@ export const clearTokens = () => {
 
 export const getAccessToken = () => accessToken;
 
+// Met à jour uniquement l'access token (utilisé après un refresh silencieux) —
+// garde window.__accessToken et localStorage synchronisés, sinon les appels
+// fetch() bruts (ex. AiAgent) gardent un token expiré indéfiniment.
+export const updateAccessToken = (access: string) => {
+  accessToken = access;
+  (window as any).__accessToken = access;
+  localStorage.setItem('sc_access_token', access);
+};
+
 // ── Instance Axios principale ─────────────────────────────────────────────────
 // En local, '/api/v1' passe par le proxy Vite (vite.config.ts) vers le backend.
 // En production (Vercel), il n'y a pas de proxy : VITE_API_URL doit pointer
@@ -84,7 +93,7 @@ api.interceptors.response.use(
           { refreshToken },
         );
 
-        accessToken = data.accessToken;
+        updateAccessToken(data.accessToken);
         processQueue(null, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
