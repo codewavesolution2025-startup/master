@@ -21,5 +21,6 @@
     }
   },
   "include": ["src"],
+  "exclude": ["src/pages/rh/rh.module.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
