@@ -19,7 +19,7 @@ const ZONE_VARIANTS: Record<string, any> = {
 
 // ── Sites ─────────────────────────────────────────────────────────────────────
 export function SitesPage() {
-  const { data: sites, isLoading } = useSites();
+  const { data: sites } = useSites();
   const [showModal, setShowModal] = useState(false);
   const [selectedSite, setSelectedSite] = useState<any>(null);
   const [showEmpModal, setShowEmpModal] = useState(false);

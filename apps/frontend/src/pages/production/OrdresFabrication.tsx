@@ -80,7 +80,6 @@ function OFDetail({ id, onClose }: { id: string; onClose: () => void }) {
   const lotOptions = (lotsData?.data || []).map((l: any) => ({ value: l.id, label: `${l.numero} — ${l.article?.reference}` }));
   const opOptions = (of.gamme?.operations || []).map((op: any) => ({ value: op.id, label: `OP${op.numeroOp} — ${op.libelle}` }));
 
-  const canDeclarer = ['LANCE', 'EN_COURS'].includes(of.statut);
   const canCloturer = ['EN_COURS', 'LANCE', 'TERMINE'].includes(of.statut);
 
   return (

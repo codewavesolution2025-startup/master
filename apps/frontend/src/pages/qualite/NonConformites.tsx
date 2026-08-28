@@ -37,7 +37,7 @@ export default function NonConformitesPage() {
   });
 
   const { data: ncs, isLoading } = useNonConformites({ statut: statutFilter || undefined });
-  const { data: stats } = useStatsNC();
+  useStatsNC();
   const { data: articlesData } = useArticles({ limit: 200 });
   const createNC = useCreateNC();
   const analyser = useAnalyserNC();

@@ -2,7 +2,7 @@
 // COMPOSANTS UI PARTAGÉS — Design System Supply Chain
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { ReactNode, useState, useCallback } from 'react';
+import { ReactNode, CSSProperties, MouseEvent } from 'react';
 
 // ── Badge ────────────────────────────────────────────────────────────────────
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'accent';
@@ -16,9 +16,10 @@ const BADGE_STYLES: Record<BadgeVariant, string> = {
   accent:  'background:rgba(124,58,237,0.12);color:#A78BFA;border:1px solid rgba(124,58,237,0.2)',
 };
 
-export function Badge({ children, variant = 'neutral' }: {
+export function Badge({ children, variant = 'neutral', style }: {
   children: ReactNode;
   variant?: BadgeVariant;
+  style?: CSSProperties;
 }) {
   return (
     <span style={{
@@ -39,6 +40,7 @@ export function Badge({ children, variant = 'neutral' }: {
             return [camel, v?.trim()];
           })
       ) as any),
+      ...style,
     }}>
       {children}
     </span>
@@ -52,7 +54,7 @@ export function Button({
   children, onClick, variant = 'primary', disabled, size = 'md', type = 'button',
 }: {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   variant?: BtnVariant;
   disabled?: boolean;
   size?: 'sm' | 'md';
@@ -99,7 +101,7 @@ export interface Column<T> {
   width?: string;
 }
 
-export function Table<T extends { id?: string }>({
+export function Table<T extends { id?: string } = any>({
   columns, data, onRowClick, loading, emptyText = 'Aucune donnée',
 }: {
   columns: Column<T>[];

@@ -6,7 +6,7 @@ import {
 } from '../../hooks/useReferentiels';
 import {
   Table, Badge, Button, Modal, SearchInput,
-  Select, FormField, Input, Pagination, KpiCard,
+  Select, FormField, Input, Pagination,
 } from '../../components/ui';
 
 const ARTICLE_TYPES = [
@@ -132,7 +132,7 @@ export default function ArticlesPage() {
       </div>
 
       {/* Tableau */}
-      <Table
+      <Table<any>
         loading={isLoading}
         data={articles}
         emptyText="Aucun article trouvé"

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useReceptions, useCreateReception, useMrpBesoinsNets } from '../../hooks/useAchats';
 import { useCommandesAchat } from '../../hooks/useAchats';
-import { useSites, useArticles } from '../../hooks/useReferentiels';
+import { useSites } from '../../hooks/useReferentiels';
 import { Table, Badge, Button, Modal, Select, FormField, Input, KpiCard } from '../../components/ui';
 
 // ── Page Réceptions ───────────────────────────────────────────────────────────

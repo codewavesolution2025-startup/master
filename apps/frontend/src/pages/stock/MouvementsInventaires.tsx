@@ -19,7 +19,7 @@ const TYPES_MOUVEMENT = [
 
 // ── Page Mouvements ───────────────────────────────────────────────────────────
 export function MouvementsPage() {
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [siteId, setSiteId] = useState('');
   const [typeMouvement, setTypeMouvement] = useState('');
   const [showCreate, setShowCreate] = useState(false);

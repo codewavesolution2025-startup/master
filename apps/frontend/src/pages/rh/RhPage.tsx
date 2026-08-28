@@ -22,10 +22,6 @@ const STATUT_COLORS: Record<string, string> = {
   ACTIF: '#34D399', INACTIF: '#4A6880', BROUILLON: '#FCD34D', VALIDEE: '#34D399',
   PLANIFIEE: '#4FC3F7', TERMINEE: '#34D399',
 };
-const NIVEAU_COLORS: Record<string, string> = {
-  DEBUTANT: '#4A6880', INTERMEDIAIRE: '#4FC3F7', AVANCE: '#FCD34D', EXPERT: '#34D399',
-};
-
 const sc = {
   bg: '#080F1C', card: '#111E2E', border: 'rgba(79,195,247,0.10)',
   text: '#E8F4FD', muted: '#4A6880', muted2: '#7A9AB5', blue: '#4FC3F7',
@@ -518,7 +514,7 @@ export default function RhPage() {
   const [data, setData] = useState<any>({ kpis: null, employes: [], conges: [], formations: [], competences: [], fiches: [], presences: [], coutsMensuel: [], coutsMoOf: [] });
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [selectedEmploye, setSelectedEmploye] = useState<string | null>(null);
+  const [, setSelectedEmploye] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     try {

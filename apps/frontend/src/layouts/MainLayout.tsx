@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
-import { useAuth, canAccess, ROLE_LABELS } from '../store/auth.context';
+import { useAuth, ROLE_LABELS } from '../store/auth.context';
 import AiAgent from '../components/ai/AiAgent';
 import './MainLayout.css';
 

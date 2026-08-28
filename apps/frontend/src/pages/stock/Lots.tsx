@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLots, useCreateLot, useUpdateStatutLot, useAlertesDluo } from '../../hooks/useStock';
 import { useSites, useArticles } from '../../hooks/useReferentiels';
-import { Table, Badge, Button, Modal, SearchInput, Select, FormField, Input, Pagination } from '../../components/ui';
+import { Table, Badge, Button, Modal, Select, FormField, Input, Pagination } from '../../components/ui';
 
 const STATUTS_LOT = [
   { value: 'DISPONIBLE', label: 'Disponible' },
@@ -35,7 +35,7 @@ function AlerteDluo({ date }: { date: string }) {
 
 export default function LotsPage() {
   const [page, setPage] = useState(1);
-  const [articleId, setArticleId] = useState('');
+  const [articleId] = useState('');
   const [siteId, setSiteId] = useState('');
   const [statut, setStatut] = useState('');
   const [showCreate, setShowCreate] = useState(false);

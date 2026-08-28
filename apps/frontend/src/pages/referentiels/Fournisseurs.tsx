@@ -232,7 +232,7 @@ export default function FournisseursPage() {
         <Select value={statutFilter} onChange={setStatutFilter} options={STATUTS} placeholder="Tous les statuts" />
       </div>
 
-      <Table
+      <Table<any>
         loading={isLoading}
         data={fournisseurs || []}
         emptyText="Aucun fournisseur"
