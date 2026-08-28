@@ -86,6 +86,22 @@ function saveMemory(messages: Message[]) {
   } catch {}
 }
 
+// ── Résolution de l'URL de l'API (même logique que services/api.ts) ─────────
+// En local, '/api/v1' passe par le proxy Vite. En production, VITE_API_URL
+// pointe vers l'URL absolue du backend (Render) — sans ça, un fetch() relatif
+// part vers l'origine du frontend lui-même et non vers le backend.
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+const API_ORIGIN = /^https?:\/\//.test(API_BASE) ? API_BASE.replace(/\/api\/v1\/?$/, '') : '';
+
+function apiUrl(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
+// Pour les URLs déjà préfixées par /api/v1 (ex. downloadUrl renvoyé par le backend)
+function resolveBackendUrl(pathWithApiPrefix: string): string {
+  return API_ORIGIN ? `${API_ORIGIN}${pathWithApiPrefix}` : pathWithApiPrefix;
+}
+
 // ── Appel API ─────────────────────────────────────────────────
 async function callAgent(
   messages: { role: string; content: string }[],
@@ -94,7 +110,7 @@ async function callAgent(
   memory: string
 ): Promise<{ content: string; actions: any[] }> {
   const token = (window as any).__accessToken || '';
-  const res = await fetch('/api/v1/ai/chat', {
+  const res = await fetch(apiUrl('/ai/chat'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: JSON.stringify({ messages, system: systemPrompt, module, memory }),
@@ -106,7 +122,7 @@ async function callAgent(
 async function fetchAlertes(): Promise<Alerte[]> {
   const token = (window as any).__accessToken || '';
   try {
-    const res = await fetch('/api/v1/ai/alertes', {
+    const res = await fetch(apiUrl('/ai/alertes'), {
       headers: { 'Authorization': `Bearer ${token}` },
     });
     if (!res.ok) return [];
@@ -355,7 +371,7 @@ export default function AiAgent() {
                               // Ajouter le token dans l'URL n'est pas possible — on fetch manuellement
                               e.preventDefault();
                               const token = (window as any).__accessToken || '';
-                              fetch(action.data.downloadUrl, { headers: { Authorization: `Bearer ${token}` } })
+                              fetch(resolveBackendUrl(action.data.downloadUrl), { headers: { Authorization: `Bearer ${token}` } })
                                 .then(r => r.blob())
                                 .then(blob => {
                                   const url = URL.createObjectURL(blob);
