@@ -100,9 +100,22 @@ async function callAgent(
   memory: string
 ): Promise<{ content: string; actions: any[] }> {
   try {
-    const { data } = await api.post('/ai/chat', { messages, system: systemPrompt, module, memory });
+    // Cet endpoint peut enchaîner jusqu'à 8 aller-retours avec l'API Claude
+    // (boucle d'utilisation d'outils : requêtes SQL, création de DA/OF...),
+    // largement au-delà des 15s par défaut de l'instance axios partagée —
+    // et le premier appel après une veille du backend (plan gratuit Render,
+    // ~1 min de démarrage) s'ajoute à ce délai. On donne donc plus de marge
+    // ici spécifiquement, sans toucher au timeout par défaut des autres appels.
+    const { data } = await api.post(
+      '/ai/chat',
+      { messages, system: systemPrompt, module, memory },
+      { timeout: 90000 },
+    );
     return data;
   } catch (e: any) {
+    if (e.code === 'ECONNABORTED') {
+      throw new Error('Le serveur met trop de temps à répondre (peut-être en train de se réveiller après une veille) — réessayez dans quelques secondes.');
+    }
     throw new Error(`Erreur serveur : ${e.response?.status || e.message}`);
   }
 }
