@@ -60,6 +60,14 @@ import { DeploiementsModule } from './admin/deploiements.module';
         // IMPORTANT: synchronize = false en production — on utilise les migrations
         synchronize: false,
         logging: config.get<string>('NODE_ENV') === 'development',
+        // Render (et la plupart des Postgres hébergés) exigent SSL sur les
+        // connexions externes. Activer avec DB_SSL=true dans les variables
+        // d'environnement de production. rejectUnauthorized: false car ces
+        // fournisseurs utilisent des certificats auto-signés.
+        ssl:
+          config.get<string>('DB_SSL') === 'true'
+            ? { rejectUnauthorized: false }
+            : false,
         // PostgreSQL session variable pour les triggers d'audit
         // Injecté dans chaque requête via middleware JWT (US-011)
         extra: {

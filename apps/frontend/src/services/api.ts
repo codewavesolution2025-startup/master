@@ -76,9 +76,13 @@ api.interceptors.response.use(
       try {
         if (!refreshToken) throw new Error('No refresh token');
 
-        const { data } = await axios.post('/api/v1/auth/refresh', {
-          refreshToken,
-        });
+        // Important : utiliser la même base URL que l'instance `api`
+        // (VITE_API_URL en production) — un chemin relatif toucherait le
+        // domaine du frontend au lieu du backend hébergé sur Render.
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_API_URL || '/api/v1'}/auth/refresh`,
+          { refreshToken },
+        );
 
         accessToken = data.accessToken;
         processQueue(null, accessToken);

@@ -23,4 +23,8 @@ export const AppDataSource = new DataSource({
   // IMPORTANT : synchronize = false — on utilise les migrations
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
+
+  // Render (et la plupart des Postgres hébergés) exigent SSL sur les
+  // connexions externes. Activer avec DB_SSL=true dans l'environnement.
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
